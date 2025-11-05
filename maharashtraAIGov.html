@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maharashtra AI Governance Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #1A659E;
+            --success: #06D6A0;
+            --warning: #F77F00;
+            --danger: #EF476F;
+            --dark: #1B2631;
+            --light: #F8F9FA;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: linear-gradient(135deg, #06D6A0 0%, #1A936F 100%);
+            color: white;
+        }
+
+        .status-disconnected {
+            background: linear-gradient(135deg, #EF476F 0%, #C1121F 100%);
+            color: white;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EF476F 0%, #C1121F 100%);
+            color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 2rem;
+            color: var(--secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .analysis-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--accent);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Insights */
+        .insights-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--accent);
+        }
+
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .severity-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .severity-high {
+            background: var(--danger);
+            color: white;
+        }
+
+        .severity-medium {
+            background: var(--warning);
+            color: white;
+        }
+
+        .severity-low {
+            background: var(--success);
+            color: white;
+        }
+
+        .insight-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-description {
+            color: #555;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .insight-recommendation {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 1s ease;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1001;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast-success {
+            border-left: 5px solid var(--success);
+        }
+
+        .toast-error {
+            border-left: 5px solid var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div class="logo-text">
+                    <h1>Maharashtra AI Governance</h1>
+                    <p>Predictive Intelligence for Citizen Services</p>
+                </div>
+            </div>
+            <div class="auth-status">
+                <span id="statusBadge" class="status-badge status-disconnected">🔴 Not Connected</span>
+                <button id="authBtn" class="btn btn-primary" onclick="showLogin()">Login</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>🔐 Secure Login</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">📊</div>
+                <div class="stat-content">
+                    <h3 id="totalRows">0</h3>
+                    <p>Total Records</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">📈</div>
+                <div class="stat-content">
+                    <h3 id="totalColumns">0</h3>
+                    <p>Data Columns</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">⚠️</div>
+                <div class="stat-content">
+                    <h3 id="totalAnomalies">0</h3>
+                    <p>Anomalies Detected</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">🤖</div>
+                <div class="stat-content">
+                    <h3 id="totalInsights">0</h3>
+                    <p>AI Insights</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="card" id="uploadSection">
+            <div class="card-header">
+                <h2 class="card-title">📁 Upload Government Data</h2>
+                <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">⬆️</div>
+            </div>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📤</div>
+                <h3>Drop your CSV/Excel file here</h3>
+                <p>or click to browse</p>
+                <p style="color: #999; margin-top: 1rem; font-size: 0.9rem;">Supports: CSV, XLSX, XLS (Max 10MB)</p>
+            </div>
+            <input type="file" id="fileInput" style="display: none;" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
+        </div>
+
+        <!-- Analysis Section -->
+        <div class="analysis-section" id="analysisSection" style="display: none;">
+            <div class="analysis-tabs">
+                <button class="tab active" onclick="switchTab('statistics')">📊 Statistics</button>
+                <button class="tab" onclick="switchTab('anomalies')">⚠️ Anomalies</button>
+                <button class="tab" onclick="switchTab('insights')">🤖 AI Insights</button>
+                <button class="tab" onclick="switchTab('visualization')">📈 Visualization</button>
+            </div>
+
+            <div id="statistics" class="tab-content active">
+                <h3 style="margin-bottom: 1rem;">Statistical Analysis</h3>
+                <div id="statisticsContent"></div>
+            </div>
+
+            <div id="anomalies" class="tab-content">
+                <h3 style="margin-bottom: 1rem;">Detected Anomalies</h3>
+                <div id="anomaliesContent"></div>
+            </div>
+
+            <div id="insights" class="tab-content">
+                <h3 style="margin-bottom: 1rem;">AI-Generated Insights</h3>
+                <div id="insightsContent"></div>
+            </div>
+
+            <div id="visualization" class="tab-content">
+                <h3 style="margin-bottom: 1rem;">Data Visualization</h3>
+                <canvas id="dataChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastIcon"></span>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let authToken = localStorage.getItem('authToken');
+        let currentFileId = null;
+        let chartInstance = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (authToken) {
+                updateAuthUI(true);
+            }
+
+            // Drag and drop
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload({ target: { files } });
+                }
+            });
+        });
+
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function hideLogin() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    updateAuthUI(true);
+                    hideLogin();
+                    showToast('✅ Login successful!', 'success');
+                } else {
+                    showToast('❌ Login failed', 'error');
+                }
+            } catch (error) {
+                showToast('❌ Connection error', 'error');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('authToken');
+            currentFileId = null;
+            updateAuthUI(false);
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('analysisSection').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'none';
+            showToast('👋 Logged out', 'success');
+        }
+
+        function updateAuthUI(isAuthenticated) {
+            const statusBadge = document.getElementById('statusBadge');
+            const authBtn = document.getElementById('authBtn');
+
+            if (isAuthenticated) {
+                statusBadge.textContent = '🟢 Connected';
+                statusBadge.className = 'status-badge status-connected';
+                authBtn.textContent = 'Logout';
+                authBtn.className = 'btn btn-danger';
+                authBtn.onclick = logout;
+            } else {
+                statusBadge.textContent = '🔴 Not Connected';
+                statusBadge.className = 'status-badge status-disconnected';
+                authBtn.textContent = 'Login';
+                authBtn.className = 'btn btn-primary';
+                authBtn.onclick = showLogin;
+            }
+        }
+
+        async function handleFileUpload(event) {
+            if (!authToken) {
+                showToast('⚠️ Please login first', 'error');
+                showLogin();
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            document.getElementById('uploadSection').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h3>🔄 Processing ${file.name}...</h3>
+                    <p>Analyzing government data...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentFileId = data.file_id;
+                    showToast('✅ File uploaded successfully', 'success');
+
+                    document.getElementById('totalRows').textContent = data.rows.toLocaleString();
+                    document.getElementById('totalColumns').textContent = data.columns.length;
+                    document.getElementById('statsGrid').style.display = 'grid';
+
+                    await loadAnalysis();
+                } else {
+                    showToast('❌ Upload failed: ' + data.error, 'error');
+                    resetUploadSection();
+                }
+            } catch (error) {
+                showToast('❌ Network error', 'error');
+                resetUploadSection();
+            }
+        }
+
+        async function loadAnalysis() {
+            try {
+                const response = await fetch(`${API_BASE}/analyze/${currentFileId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const analysis = data.analysis;
+
+                    // Update stats
+                    document.getElementById('totalAnomalies').textContent = analysis.anomalies.length;
+
+                    // Display statistics
+                    displayStatistics(analysis.statistics);
+
+                    // Display anomalies
+                    displayAnomalies(analysis.anomalies);
+
+                    // Create visualization
+                    createVisualization(analysis.statistics);
+
+                    // Load AI insights
+                    loadInsights();
+
+                    document.getElementById('uploadSection').style.display = 'none';
+                    document.getElementById('analysisSection').style.display = 'block';
+                }
+            } catch (error) {
+                showToast('❌ Analysis error', 'error');
+            }
+        }
+
+        function displayStatistics(stats) {
+            const content = document.getElementById('statisticsContent');
+            let html = '<div class="dashboard">';
+
+            for (const [column, values] of Object.entries(stats)) {
+                html += `
+                    <div class="card">
+                        <h4 style="margin-bottom: 1rem; color: var(--secondary);">${column}</h4>
+                        <div style="display: grid; gap: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Mean:</span>
+                                <strong>${values.mean.toFixed(2)}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Median:</span>
+                                <strong>${values.median.toFixed(2)}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Std Dev:</span>
+                                <strong>${values.std.toFixed(2)}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Min:</span>
+                                <strong>${values.min.toFixed(2)}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Max:</span>
+                                <strong>${values.max.toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        function displayAnomalies(anomalies) {
+            const content = document.getElementById('anomaliesContent');
+
+            if (anomalies.length === 0) {
+                content.innerHTML = '<p style="text-align: center; color: #999;">No anomalies detected</p>';
+                return;
+            }
+
+            let html = '<div class="insights-grid">';
+
+            anomalies.forEach(anomaly => {
+                const severity = anomaly.z_score > 3 ? 'high' : 'medium';
+                html += `
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div>
+                                <div class="insight-title">Row ${anomaly.row} - ${anomaly.column}</div>
+                                <p style="color: #666; font-size: 0.9rem;">Value: ${anomaly.value.toFixed(2)}</p>
+                            </div>
+                            <span class="severity-badge severity-${severity}">
+                                Z-Score: ${anomaly.z_score.toFixed(2)}
+                            </span>
+                        </div>
+                        <p style="color: #555;">This value deviates significantly from the expected range and requires attention.</p>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        async function loadInsights() {
+            const content = document.getElementById('insightsContent');
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h3>🤖 Generating AI Insights...</h3>
+                    <p>Gemini AI is analyzing your data...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/insights/${currentFileId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('totalInsights').textContent = data.insights.length;
+                    displayInsights(data.insights);
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <p style="color: #999;">⚠️ ${data.error || 'Insights not available'}</p>
+                            <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">${data.message || ''}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                content.innerHTML = '<p style="text-align: center; color: #999;">❌ Failed to load insights</p>';
+            }
+        }
+
+        function displayInsights(insights) {
+            const content = document.getElementById('insightsContent');
+            let html = '<div class="insights-grid">';
+
+            insights.forEach(insight => {
+                html += `
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div class="insight-title">${insight.title}</div>
+                            <span class="severity-badge severity-${insight.severity}">${insight.severity.toUpperCase()}</span>
+                        </div>
+                        <div class="insight-description">${insight.description}</div>
+                        <div class="insight-recommendation">
+                            <strong>📋 Recommendation:</strong>
+                            <p style="margin-top: 0.5rem; color: #555;">${insight.recommendation}</p>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <span style="font-size: 0.9rem; color: #666;">Confidence</span>
+                                <span style="font-weight: 700; color: var(--accent);">${insight.confidence}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${insight.confidence}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        function createVisualization(stats) {
+            const canvas = document.getElementById('dataChart');
+            const ctx = canvas.getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const columns = Object.keys(stats);
+            const means = columns.map(col => stats[col].mean);
+            const stds = columns.map(col => stats[col].std);
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: columns,
+                    datasets: [
+                        {
+                            label: 'Mean Values',
+                            data: means,
+                            backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Standard Deviation',
+                            data: stds,
+                            backgroundColor: 'rgba(239, 71, 111, 0.7)',
+                            borderColor: 'rgba(239, 71, 111, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Statistical Distribution Analysis',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function resetUploadSection() {
+            document.getElementById('uploadSection').innerHTML = `
+                <div class="card-header">
+                    <h2 class="card-title">📁 Upload Government Data</h2>
+                    <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">⬆️</div>
+                </div>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📤</div>
+                    <h3>Drop your CSV/Excel file here</h3>
+                    <p>or click to browse</p>
+                    <p style="color: #999; margin-top: 1rem; font-size: 0.9rem;">Supports: CSV, XLSX, XLS (Max 10MB)</p>
+                </div>
+                <input type="file" id="fileInput" style="display: none;" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
+            `;
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+
+            icon.textContent = type === 'success' ? '✅' : '❌';
+            msg.textContent = message;
+            toast.className = `toast toast-${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
